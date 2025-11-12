@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+
+BUNDLE_ID="com.dtoebe.SwiftComponentPlayground"
+
+# Function to get device configuration
+get_device_id() {
+  case "$1" in
+  iphone) echo "A653B8E9-4E0A-45BF-B43F-C475571436D0" ;; # iPhone 17 Pro Simulator
+  ipad) echo "AE7BE217-4588-4A70-9E98-56DDF89ACB8A" ;;   # iPad Air 11-inch Simulator
+  device-iphone) echo "00008140-000164D10193801C" ;;     # Daniel's physical iPhone 16
+  # device-ipad)  echo "YOUR_PHYSICAL_IPAD_DEVICE_ID" ;;          # Uncomment/add later
+  mac) echo "" ;;
+  *) echo "" ;;
+  esac
+}
+
+get_platform() {
+  case "$1" in
+  iphone | ipad) echo "iOS Simulator" ;;
+  device-iphone | device-ipad) echo "iOS" ;;
+  mac) echo "macOS" ;;
+  *) echo "" ;;
+  esac
+}
+
+get_scheme() {
+  case "$1" in
+  iphone | ipad) echo "SwiftComponentPlayground-iOS" ;;
+  device-iphone | device-ipad) echo "SwiftComponentPlayground-iOS" ;;
+  mac) echo "SwiftComponentPlayground-macOS" ;;
+  *) echo "" ;;
+  esac
+}
+
+# Entry point: Argument parsing
+TARGET=$1
+if [[ -z "$TARGET" ]]; then
+  echo "Usage: $0 {iphone|ipad|device-iphone|device-ipad|mac}"
+  exit 1
+fi
+
+DEVICE_ID=$(get_device_id "$TARGET")
+PLATFORM=$(get_platform "$TARGET")
+SCHEME=$(get_scheme "$TARGET")
+
+if [[ -z "$PLATFORM" ]]; then
+  echo "❌ Invalid target: $TARGET"
+  echo "Usage: $0 {iphone|ipad|device-iphone|device-ipad|mac}"
+  exit 1
+fi
+
+echo "👀 Live Preview Mode: $TARGET"
+if [[ "$TARGET" != "mac" ]]; then
+  echo "🔍 Device ID: $DEVICE_ID"
+fi
+echo "🎯 Platform: $PLATFORM"
+echo ""
+
+# Set build directory and destination
+if [[ $PLATFORM == "iOS Simulator" ]]; then
+  BUILD_DIR="Debug-iphonesimulator"
+  DESTINATION="platform=iOS Simulator,id=$DEVICE_ID"
+
+  echo "🚀 Booting simulator..."
+  xcrun simctl boot "$DEVICE_ID" 2>/dev/null || echo "✅ Simulator already booted"
+  open -a Simulator
+  sleep 2
+elif [[ $PLATFORM == "iOS" ]]; then
+  BUILD_DIR="Debug-iphoneos"
+  DESTINATION="platform=iOS,id=$DEVICE_ID"
+elif [[ $PLATFORM == "macOS" ]]; then
+  BUILD_DIR="Debug"
+  DESTINATION="platform=macOS"
+else
+  echo "❌ Unsupported platform: $PLATFORM"
+  exit 1
+fi
+
+# Trap for graceful exit
+trap "echo ''; echo '🛑 Stopping watch...'; exit 0" SIGINT
+
+# Initial build and run
+echo "🔨 Initial build..."
+xcodegen generate
+
+xcodebuild -project SwiftComponentPlayground.xcodeproj \
+  -scheme "$SCHEME" \
+  -destination "$DESTINATION" \
+  -derivedDataPath ./build \
+  -allowProvisioningUpdates \
+  build
+
+if [ $? -eq 0 ]; then
+  echo "✅ Build successful"
+
+  if [[ $PLATFORM == "iOS Simulator" ]]; then
+    xcrun simctl terminate booted "$BUNDLE_ID" 2>/dev/null
+    xcrun simctl install booted ./build/Build/Products/$BUILD_DIR/SwiftComponentPlayground.app
+    xcrun simctl launch booted "$BUNDLE_ID" &
+    sleep 1
+  elif [[ $PLATFORM == "iOS" ]]; then
+    echo "📲 Installing on physical device..."
+    xcrun devicectl device install app \
+      --device "$DEVICE_ID" \
+      ./build/Build/Products/$BUILD_DIR/SwiftComponentPlayground.app
+    echo "🚀 Launching app..."
+    xcrun devicectl device process launch \
+      --device "$DEVICE_ID" \
+      "$BUNDLE_ID"
+  elif [[ $PLATFORM == "macOS" ]]; then
+    echo "🚀 Launching Mac app..."
+    open ./build/Build/Products/$BUILD_DIR/SwiftComponentPlayground.app
+  fi
+
+  echo "✅ App launched at $(date +%H:%M:%S)"
+else
+  echo "❌ Initial build failed"
+  exit 1
+fi
+
+echo ""
+echo "👀 Watching for changes... (Press Ctrl+C to stop)"
+echo ""
+
+CHECKSUM_FILE=".file_checksums"
+find ./Sources/SwiftComponentPlayground -name "*.swift" -type f -exec md5 {} \; >"$CHECKSUM_FILE"
+
+echo "✅ Watch loop starting (edit any Swift file to test)"
+echo ""
+
+# Watch loop
+while true; do
+  sleep 1
+  CURRENT_CHECKSUMS=$(find ./Sources/SwiftComponentPlayground -name "*.swift" -type f -exec md5 {} \;)
+  STORED_CHECKSUMS=$(cat "$CHECKSUM_FILE")
+
+  if [ "$CURRENT_CHECKSUMS" != "$STORED_CHECKSUMS" ]; then
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📝 Change detected at $(date +%H:%M:%S)"
+    echo "🔨 Building..."
+
+    xcodegen generate
+
+    xcodebuild -project SwiftComponentPlayground.xcodeproj \
+      -scheme "$SCHEME" \
+      -destination "$DESTINATION" \
+      -derivedDataPath ./build \
+      -allowProvisioningUpdates \
+      build
+
+    if [ $? -eq 0 ]; then
+      echo "✅ Build successful"
+
+      if [[ $PLATFORM == "iOS Simulator" ]]; then
+        xcrun simctl terminate booted "$BUNDLE_ID" 2>/dev/null
+        xcrun simctl install booted ./build/Build/Products/$BUILD_DIR/SwiftComponentPlayground.app
+        xcrun simctl launch booted "$BUNDLE_ID" &
+        sleep 1
+      elif [[ $PLATFORM == "iOS" ]]; then
+        echo "📲 Installing on physical device..."
+        xcrun devicectl device install app \
+          --device "$DEVICE_ID" \
+          ./build/Build/Products/$BUILD_DIR/SwiftComponentPlayground.app
+
+        echo "🚀 Launching app..."
+        xcrun devicectl device process launch \
+          --device "$DEVICE_ID" \
+          "$BUNDLE_ID"
+      elif [[ $PLATFORM == "macOS" ]]; then
+        echo "🚀 Launching Mac app..."
+        open ./build/Build/Products/$BUILD_DIR/SwiftComponentPlayground.app
+      fi
+
+      echo "✅ Reloaded at $(date +%H:%M:%S)"
+      echo "$CURRENT_CHECKSUMS" >"$CHECKSUM_FILE"
+    else
+      echo "❌ Build failed"
+    fi
+    echo ""
+  fi
+done
