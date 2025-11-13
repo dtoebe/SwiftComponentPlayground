@@ -1,17 +1,14 @@
 import SwiftUI
 
-struct MainLayout<Content: View>: View {
+struct MainLayout: View {
+    @StateObject private var navigationManager = NavigationManager()
     @State private var isDrawerOpen = false
-
-    let content: Content
-
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
 
     var body: some View {
         ZStack(alignment: .leading) {
-            content
+            Color.white.ignoresSafeArea()
+
+            NavigationRouter(route: navigationManager.currentRoute)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             if isDrawerOpen {
@@ -24,7 +21,7 @@ struct MainLayout<Content: View>: View {
                     }
             }
 
-            SlideOutDrawer(isShowing: $isDrawerOpen)
+            SlideOutDrawer(isShowing: $isDrawerOpen, navigationManager: navigationManager)
         }
         .gesture(
             DragGesture()

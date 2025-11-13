@@ -6,11 +6,7 @@ import SwiftUI
 struct Swiftcomponentplayground: App {
     var body: some Scene {
         WindowGroup {
-            MainLayout {
-                NavigationStack {
-                    Home()
-                }
-            }
+            MainLayout()
         }
     }
 }
