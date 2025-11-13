@@ -28,8 +28,8 @@ struct SlideOutDrawer: View {
                         }
                     }
 
-                    // Divider()
-                    // .overlay(.white)
+                    Divider()
+                        .overlay(.black.opacity(0.5))
                 }
             }
             .background(.gray)

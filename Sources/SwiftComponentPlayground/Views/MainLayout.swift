@@ -12,7 +12,7 @@ struct MainLayout: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             if isDrawerOpen {
-                Color.gray.opacity(0.4)
+                Color.black.opacity(0.6)
                     .ignoresSafeArea()
                     .onTapGesture {
                         withAnimation(.spring()) {
