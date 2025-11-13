@@ -1,63 +1,52 @@
 import SwiftUI
 
 struct SlideOutDrawer: View {
-    @State private var isShowing = false
+    @Binding var isShowing: Bool
 
     var body: some View {
-        ZStack {
-            Color.clear
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    withAnimation {
-                        isShowing = false
-                    }
-                }
+        VStack(spacing: 0) {
+            Text("Drawer Menu")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .padding(.top, 10)
+                .padding(.bottom, 7)
 
-            VStack {
-                Text("Drawer Menu")
-                    .font(.title)
-                Divider()
-                    .overlay(.white)
+            Divider()
+                .overlay(.white)
 
-                ForEach(1..<8) { index in
+            ScrollView {
+                ForEach(1..<10) { index in
                     HStack {
                         Image(systemName: "waveform.circle.fill")
+
                         Text("Item: \(index)")
+
                         Spacer()
                     }
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 10)
+
                     Divider()
                         .overlay(.white)
                 }
-                Text("By: Daniel Toebe")
-                    .padding(.top, 10)
-                    .font(.caption2)
             }
-            .padding()
-            .frame(minWidth: 225, maxWidth: 225)
-            .background(.gray, in: RoundedRectangle(cornerRadius: 20))
-            .foregroundStyle(.white)
-            .offset(x: isShowing ? 0 : -300)
-            .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isShowing)
-            .gesture(
-                DragGesture()
-                    .onEnded { value in
-                        if value.translation.width < -50 {
-                            withAnimation {
-                                isShowing = false
-                            }
-                        }
-                    }
-            )
+            .background(.gray)
+
         }
-        .gesture(
-            DragGesture()
-                .onEnded { value in
-                    if value.translation.width > 50 && value.startLocation.x < 50 {
-                        withAnimation {
-                            isShowing = true
-                        }
-                    }
-                }
+        .frame(maxWidth: 250)
+        .frame(maxHeight: .infinity)
+        .background(.black)
+        .foregroundStyle(.white)
+        .clipShape(
+            UnevenRoundedRectangle(
+                topLeadingRadius: 0,
+                bottomLeadingRadius: 0,
+                bottomTrailingRadius: 10,
+                topTrailingRadius: 10
+            )
         )
+        .padding(.vertical, 10)
+        .offset(x: isShowing ? 0 : -275)
+        .animation(.spring(), value: isShowing)
     }
 }

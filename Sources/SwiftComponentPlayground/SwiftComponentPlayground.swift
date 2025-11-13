@@ -6,7 +6,11 @@ import SwiftUI
 struct Swiftcomponentplayground: App {
     var body: some Scene {
         WindowGroup {
-            SlideOutDrawerPresentation()
+            MainLayout {
+                NavigationStack {
+                    Home()
+                }
+            }
         }
     }
 }

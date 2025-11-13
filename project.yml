@@ -23,6 +23,8 @@ targets:
       SUPPORTED_PLATFORMS: "iphoneos iphonesimulator macosx"
       # ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       GENERATE_INFOPLIST_FILE: YES
+      INFOPLIST_KEY_UILaunchScreen_Generation: YES
+
 info:
   properties:
     CFBundleDevelopmentRegion: $(DEVELOPMENT_LANGUAGE)
