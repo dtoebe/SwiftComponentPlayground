@@ -17,13 +17,14 @@ struct TaskList: View {
                                 Text(task)
                                 Spacer()
                                 Button(action: {
-
                                 }) {
                                     Image(systemName: "checkmark.circle")
                                 }
                                 .foregroundColor(.green)
 
                                 Button(action: {
+                                    selectedTask = task
+                                    showingSheet = true
 
                                 }) {
                                     Image(systemName: "rectangle.and.pencil.and.ellipsis")
@@ -44,8 +45,8 @@ struct TaskList: View {
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: {
-                            showingSheet = true
                             selectedTask = ""
+                            showingSheet = true
                         }) {
                             Image(systemName: "plus")
                                 .foregroundColor(.blue)
