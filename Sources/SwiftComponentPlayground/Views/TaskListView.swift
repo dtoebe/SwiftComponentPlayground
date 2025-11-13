@@ -1,11 +1,14 @@
 import SwiftData
 import SwiftUI
 
+extension String: Identifiable {
+    public var id: String { self }
+}
+
 struct TaskList: View {
     let tasks: [String] = (0..<10).map { "Task: \($0)" }
 
-    @State private var selectedTask = ""
-    @State private var showingSheet = false
+    @State private var selectedTask: String?
 
     var body: some View {
         #if os(iOS)
@@ -24,7 +27,6 @@ struct TaskList: View {
 
                                 Button(action: {
                                     selectedTask = task
-                                    showingSheet = true
 
                                 }) {
                                     Image(systemName: "rectangle.and.pencil.and.ellipsis")
@@ -46,7 +48,6 @@ struct TaskList: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: {
                             selectedTask = ""
-                            showingSheet = true
                         }) {
                             Image(systemName: "plus")
                                 .foregroundColor(.blue)
@@ -54,8 +55,8 @@ struct TaskList: View {
                     }
                 }
             }
-            .sheet(isPresented: $showingSheet) {
-                EditTask(name: selectedTask)
+            .sheet(item: $selectedTask) { task in
+                EditTask(name: task)
             }
         #endif
     }
