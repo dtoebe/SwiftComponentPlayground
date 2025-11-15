@@ -32,13 +32,13 @@ struct SlideOutDrawer: View {
                         .overlay(.black.opacity(0.5))
                 }
             }
-            .background(.gray)
+            .background(.white)
 
         }
         .frame(maxWidth: 250)
         .frame(maxHeight: .infinity)
-        .background(.black)
-        .foregroundStyle(.white)
+        .background(.white)
+        // .foregroundStyle(.secondary)
         .clipShape(
             UnevenRoundedRectangle(
                 topLeadingRadius: 0,
@@ -80,7 +80,7 @@ struct NavigationButton: View {
 
                 if isSelected {
                     Image(systemName: "checkmark")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.secondary)
                 }
             }
             .padding(.vertical, 16)
