@@ -13,6 +13,7 @@ class NavigationManager: ObservableObject {
         items = [
             NavigationItem(title: "Home", icon: "house.fill", route: "home"),
             NavigationItem(title: "Time Picker", icon: "clock.fill", route: "timePicker"),
+            NavigationItem(title: "Task Manager", icon: "checklist", route: "taskManager"),
         ]
     }
 
@@ -34,6 +35,9 @@ struct NavigationRouter: View {
             Home()
         case "timePicker":
             TimePickerView()
+        case "taskManager":
+            TaskList()
+                .modelContainer(for: TaskItem.self)
         default:
             Home()
 

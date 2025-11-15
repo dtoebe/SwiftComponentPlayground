@@ -7,10 +7,7 @@ import SwiftUI
 struct Swiftcomponentplayground: App {
     var body: some Scene {
         WindowGroup {
-            // MainLayout()
-            TaskList()
-                .modelContainer(for: TaskItem.self)
-
+            MainLayout()
         }
     }
 }
