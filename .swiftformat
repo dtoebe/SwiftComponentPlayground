@@ -1,0 +1,31 @@
+
+
+# SwiftFormat Configuration
+# https://github.com/nicklockwood/SwiftFormat
+
+# Trailing commas
+--trailingcommas always
+
+# Indentation
+--indent 4
+--tabwidth 4
+--smarttabs enabled
+
+# Wrapping
+--maxwidth 120
+--wraparguments before-first
+--wrapcollections before-first
+--wrapparameters before-first
+
+# Spacing
+--trimwhitespace always
+--insertblanklines enabled
+--removeblanklines enabled
+
+# Other style preferences
+--self insert
+--importgrouping testable-bottom
+--commas always
+--semicolons never
+--stripunusedargs always
+
